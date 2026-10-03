@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import type { DocumentData } from "./types";
 import { createEmptyDocument } from "./utils/defaults";
 import { exportPdf } from "./utils/pdf";
+import { trackDocumentCreated, trackPdfDownload } from "./utils/analytics";
 import DocumentForm from "./components/DocumentForm";
 import DocumentPreview from "./components/DocumentPreview";
-
 const STORAGE_KEY = "docuflow:draft";
 
 function loadDraft(): DocumentData {
@@ -31,7 +31,11 @@ export default function App() {
       setDoc(createEmptyDocument());
     }
   };
-
+const handleDownload = () => {
+  exportPdf(doc);
+  trackDocumentCreated(doc.type);
+  trackPdfDownload(doc.type);
+};
   const tabClass = (active: boolean) =>
     `flex-1 rounded-lg px-4 py-2 text-sm font-medium ${
       active ? "bg-indigo-600 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200"
@@ -47,7 +51,7 @@ export default function App() {
               className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 ring-1 ring-slate-300 hover:bg-slate-50">
               New
             </button>
-            <button onClick={() => exportPdf(doc)}
+            <button onClick={handleDownload}
               className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700">
               Download PDF
             </button>
